@@ -1,9 +1,10 @@
-#include <iostream>
+#include "tool_logger.h"
 #include "sub.h"
 
 int main()
 {
-    std::cout << "Hello, world." << std::endl;
-    std::cout << "10 - 3 = " << sub(10, 3) << std::endl;
+    LoggerInit();
+    LOG_INFO("Hello, world.");
+    LOG_INFO("10 - 3 = %d", sub(10, 3));
     return 0;
 }
