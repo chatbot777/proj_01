@@ -1,0 +1,24 @@
+BasedOnStyle:  LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+BraceWrapping:
+  AfterFunction: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterStruct: true
+  AfterNamespace: true
+  BeforeElse: true
+  IndentBraces: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: InlineOnly
+ColumnLimit: 1000
+SortIncludes: false
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceAfterCStyleCast: true
+BreakBeforeBraces: Allman
+AlwaysBreakTemplateDeclarations: Yes
