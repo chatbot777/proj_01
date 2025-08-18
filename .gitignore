@@ -1,0 +1,30 @@
+# Ignore log and object directories
+log/
+obj/
+
+# Ignore executables
+main
+*.out
+
+# Prerequisites
+*.d
+
+# Compiled object files
+*.slo
+*.lo
+*.o
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Compiled dynamic libraries
+*.so
+
+# Compiled static libraries
+*.lai
+*.la
+*.a
+
+# Other
+*.log
