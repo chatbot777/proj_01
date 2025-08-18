@@ -4,6 +4,7 @@ CXXFLAGS := -std=c++17 -Wall -Wextra -O2
 SRC_DIR := src
 INC_DIR := inc
 OBJ_DIR := obj
+LOG_DIR := log
 
 CPPFLAGS := -I$(INC_DIR)
 SRCS := $(wildcard $(SRC_DIR)/*.cpp)
@@ -23,5 +24,4 @@ $(OBJ_DIR):
 
 .PHONY: clean
 clean:
->rm -f $(TARGET) $(OBJS)
->rmdir $(OBJ_DIR) 2>/dev/null || true
+>rm -rf $(TARGET) $(OBJ_DIR) $(LOG_DIR)
