@@ -13,7 +13,6 @@ BraceWrapping:
   IndentBraces: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: InlineOnly
-ColumnLimit: 1000
 SortIncludes: false
 SpaceBeforeParens: ControlStatements
 SpacesBeforeTrailingComments: 1
@@ -22,3 +21,5 @@ SpacesInSquareBrackets: false
 SpaceAfterCStyleCast: true
 BreakBeforeBraces: Allman
 AlwaysBreakTemplateDeclarations: Yes
+PointerAlignment: Right
+ColumnLimit: 1000
