@@ -1,25 +1,30 @@
-BasedOnStyle:  LLVM
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
-BraceWrapping:
-  AfterFunction: true
-  AfterClass: true
-  AfterControlStatement: true
-  AfterEnum: true
-  AfterStruct: true
-  AfterNamespace: true
-  BeforeElse: true
-  IndentBraces: false
-AllowShortIfStatementsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: InlineOnly
-SortIncludes: false
-SpaceBeforeParens: ControlStatements
-SpacesBeforeTrailingComments: 1
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-SpaceAfterCStyleCast: true
-BreakBeforeBraces: Allman
-AlwaysBreakTemplateDeclarations: Yes
-PointerAlignment: Right
-ColumnLimit: 1000
+# clang-format configuration
+# 目的: 可読性と差分最小化を重視した、Allman スタイルを基調とする設定。
+# 想定: C/C++。各オプションは clang-format のバージョン差異により解釈が異なる場合があります。
+
+BasedOnStyle:  LLVM        # 既定値の出発点。下記で必要な差分のみ明示上書き。
+
+IndentWidth: 4             # インデント幅は 4。
+TabWidth: 4                # タブの見かけ上の幅。UseTab: Never のため主に既存タブ表示用。
+UseTab: Never              # インデントはスペースのみを使用。タブ混入を防止。
+
+AllowShortIfStatementsOnASingleLine: false   # if のワンライナーを禁止（読み違い防止）。
+AllowShortFunctionsOnASingleLine: InlineOnly # 短い関数は「インライン定義」に限って 1 行許可。
+
+SortIncludes: false            # include の並べ替えを行わない（不要な差分を避ける運用）。
+SpaceBeforeParens: ControlStatements  # 制御構文 (if/for など) の括弧前にスペース。関数呼び出しは空けない。
+SpacesBeforeTrailingComments: 1       # 行末コメントの前に 1 つスペース。
+SpacesInParentheses: false     # 丸括弧内のスペースを詰める。
+SpacesInSquareBrackets: false  # 角括弧内のスペースを詰める。
+SpaceAfterCStyleCast: true     # C スタイルキャストの直後にスペース（`(int) x`）。
+
+BreakBeforeBraces: Allman      # 基本スタイルとして Allman を明示。
+                               # 上の BraceWrapping と併記だが、意図の再確認として冗長明示。
+
+AlwaysBreakTemplateDeclarations: Yes  # テンプレート宣言は折り返しを強制（可読性優先）。
+
+PointerAlignment: Right        # ポインタ記号は識別子側（例: `int *p`）。
+DerivePointerAlignment: false  # 継承・推測を無効化する場合は明示固定。
+
+ColumnLimit: 1000              # 実質的に行幅制限なし。自動折返しによる差分発生を避ける方針。
+                               # 注: 可読性のため、長い引数列等は手動で改行する運用を推奨。
