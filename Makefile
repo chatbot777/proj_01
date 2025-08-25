@@ -1,35 +1,86 @@
-# C++ compiler and standard build options
-CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -O2
+#====================================================
+# ビルド対象とソースファイルの定義
+#====================================================
+TARGET = app.out
 
-# Project structure
-SRC_DIR := src
-INC_DIR := inc
-OBJ_DIR := obj
-LOG_DIR := log
+SRCDIR = src/
+SRCS = $(wildcard $(SRCDIR)*.cpp)
 
-# Include paths and file lists
-CPPFLAGS := -I$(INC_DIR)
-SRCS := $(wildcard $(SRC_DIR)/*.cpp)
-OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-TARGET := main
+OBJDIR = obj/
+OBJS = $(patsubst %.cpp,%.o,$(notdir $(SRCS)))
+OBJECTS = $(addprefix $(OBJDIR),$(OBJS))
 
-# Use '>' as the command prefix for recipes
-.RECIPEPREFIX := >
+LOGDIR = log/
 
-# Link the final executable from object files
-$(TARGET): $(OBJS)
->$(CXX) $(CXXFLAGS) -o $@ $^
+#====================================================
+# 並列コンパイルのための設定
+#====================================================
+# CPUコア数を自動検出
+NPROCS := $(shell nproc)
 
-# Compile source files into object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
->$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+# "make" 実行時に -j オプションが指定されていなければ、自動的に付与
+# ただし MAKEFLAGS に -j が入っている場合は何もしない
+ifeq (,$(findstring -j,$(MAKEFLAGS)))
+  MAKEFLAGS += -j$(NPROCS)
+endif
 
-# Ensure that the object directory exists
-$(OBJ_DIR):
->mkdir -p $(OBJ_DIR)
+#====================================================
+# コンパイラ設定
+#====================================================
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall    -O3 -I./inc -MMD -MP # リリースビルド
+# CXXFLAGS = -std=c++17 -Wall -g -O0 -I./inc -MMD -MP # デバッグビルド
+LIBS = -lpthread -lboost_filesystem -lboost_system
+LDFLAGS = -L./lib
 
-# Remove build artifacts
+#====================================================
+# 依存関係ファイル
+#====================================================
+DEPS = $(OBJECTS:.o=.d)
+
+#====================================================
+# 個別オブジェクトファイルのビルドルール
+#====================================================
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	@mkdir -p $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+#====================================================
+# 最終バイナリのリンクルール
+#====================================================
+$(TARGET): $(OBJECTS)
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@ $(LIBS)
+
+#====================================================
+# クリーンアップ
+#====================================================
+# クリーン対象：tool_logger.o/d 以外を消す
+#(ログ処理は基本的に変更しない、かつビルドに時間がかかるため、通常のクリーンでは消さない)
 .PHONY: clean
 clean:
->rm -rf $(TARGET) $(OBJ_DIR) $(LOG_DIR)
+	rm -f $(TARGET)
+	rm -rf $(LOGDIR)
+	find $(OBJDIR) -type f \( -name "*.o" -o -name "*.d" \) ! -name "tool_logger.o" ! -name "tool_logger.d" -exec rm -f {} +
+
+# 完全クリーン: tool_loggerも含めて全部消す
+.PHONY: fullclean
+fullclean:
+	rm -f $(TARGET)
+	rm -rf $(LOGDIR)
+	rm -rf $(OBJDIR)
+
+#====================================================
+# リビルド (完全クリーン → ビルド)
+#====================================================
+.PHONY: all
+all: $(TARGET)
+
+.PHONY: rebuild
+rebuild:
+	$(MAKE) fullclean
+	$(MAKE) all
+
+#====================================================
+# 依存関係の読み込み
+#====================================================
+-include $(DEPS)

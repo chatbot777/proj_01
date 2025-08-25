@@ -7,6 +7,9 @@
 
 #include "tool_logger.h"
 
+namespace app
+{
+
 void LoggerInit(void)
 {
     // ファイル出力(毎日0時にローテート)
@@ -63,3 +66,5 @@ void log_error_impl(const char *file, int line, const char *fmtstr, ...)
     std::string newmsg = std::string(buf) + " [" + file + ", " + std::to_string(line) + "]";
     spdlog::error(newmsg);
 }
+
+} // namespace app

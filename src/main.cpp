@@ -1,10 +1,17 @@
+#include <thread>
+
 #include "tool_logger.h"
-#include "sub.h"
+#include "main_thread.h"
 
 int main()
 {
-    LoggerInit();
-    LOG_INFO("Hello, world.");
-    LOG_INFO("10 - 3 = %d", sub(10, 3));
+    // ロガーの初期化処理
+    app::LoggerInit();
+    app::LOG_INFO("main start");
+
+    std::thread mainThread(app::MainThread);
+    mainThread.join();
+
+    app::LOG_INFO("main end");
     return 0;
 }
