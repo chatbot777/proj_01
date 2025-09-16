@@ -1,6 +1,5 @@
 # Ignore log and object directories
 log/
-obj/
 
 # Ignore executables
 main
