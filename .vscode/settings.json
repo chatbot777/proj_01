@@ -1,0 +1,9 @@
+{
+    "C_Cpp.formatting": "clangFormat",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [80, 100],
+    "files.associations": {
+        "thread": "cpp"
+    }
+}

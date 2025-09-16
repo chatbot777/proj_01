@@ -1,7 +1,4 @@
-#include <thread>
-
 #include "tool_logger.h"
-#include "main_thread.h"
 
 int main()
 {
@@ -9,8 +6,7 @@ int main()
     app::LoggerInit();
     app::LOG_INFO("main start");
 
-    std::thread mainThread(app::MainThread);
-    mainThread.join();
+    while (true) { continue; }
 
     app::LOG_INFO("main end");
     return 0;

@@ -1,30 +1,53 @@
-# clang-format configuration
-# 目的: 可読性と差分最小化を重視した、Allman スタイルを基調とする設定。
-# 想定: C/C++。各オプションは clang-format のバージョン差異により解釈が異なる場合があります。
+---
+Language: Cpp
 
-BasedOnStyle:  LLVM        # 既定値の出発点。下記で必要な差分のみ明示上書き。
+# インデント幅を4スペースに設定
+IndentWidth: 4
+# タブ幅も4スペースに設定
+TabWidth: 4
+# インデントにはタブではなくスペースのみを使用
+UseTab: Never
+# public/privateはベースラインに置く
+AccessModifierOffset: -4
 
-IndentWidth: 4             # インデント幅は 4。
-TabWidth: 4                # タブの見かけ上の幅。UseTab: Never のため主に既存タブ表示用。
-UseTab: Never              # インデントはスペースのみを使用。タブ混入を防止。
+# 短いwhile文を1行に収める
+AllowShortBlocksOnASingleLine: Always
+AllowShortLoopsOnASingleLine: true
+# 短いswitch-case文を1行に収める
+AllowShortCaseLabelsOnASingleLine: true
+# テンプレート宣言の後に改行する
+AlwaysBreakTemplateDeclarations: Yes
 
-AllowShortIfStatementsOnASingleLine: false   # if のワンライナーを禁止（読み違い防止）。
-AllowShortFunctionsOnASingleLine: InlineOnly # 短い関数は「インライン定義」に限って 1 行許可。
+# 括弧の個別制御を指定する
+BreakBeforeBraces: Custom
+BraceWrapping:
+  # 関数の後ろの括弧は改行する
+  AfterFunction: true
+  # クラスの後ろの括弧は改行する
+  AfterClass: true
+  # 構造体の後ろの括弧は改行する
+  AfterStruct: true
+  # 列挙体の後ろの括弧は改行する
+  AfterEnum: true
+  # else節の前に改行する
+  BeforeElse: true
+  # catch節の前に改行する
+  BeforeCatch: true
 
-SortIncludes: false            # include の並べ替えを行わない（不要な差分を避ける運用）。
-SpaceBeforeParens: ControlStatements  # 制御構文 (if/for など) の括弧前にスペース。関数呼び出しは空けない。
-SpacesBeforeTrailingComments: 1       # 行末コメントの前に 1 つスペース。
-SpacesInParentheses: false     # 丸括弧内のスペースを詰める。
-SpacesInSquareBrackets: false  # 角括弧内のスペースを詰める。
-SpaceAfterCStyleCast: true     # C スタイルキャストの直後にスペース（`(int) x`）。
+# include の並び替えはしない
+SortIncludes: false
 
-BreakBeforeBraces: Allman      # 基本スタイルとして Allman を明示。
-                               # 上の BraceWrapping と併記だが、意図の再確認として冗長明示。
+# ポインタと参照のアライメントを右寄せにする
+PointerAlignment: Right
+ReferenceAlignment: Right
 
-AlwaysBreakTemplateDeclarations: Yes  # テンプレート宣言は折り返しを強制（可読性優先）。
+# Cスタイルキャストの後にスペースを入れる
+SpaceAfterCStyleCast: true
+# 1行あたりの最大文字数を120に設定
+ColumnLimit: 120
 
-PointerAlignment: Right        # ポインタ記号は識別子側（例: `int *p`）。
-DerivePointerAlignment: false  # 継承・推測を無効化する場合は明示固定。
+---
+Language: Json
 
-ColumnLimit: 1000              # 実質的に行幅制限なし。自動折返しによる差分発生を避ける方針。
-                               # 注: 可読性のため、長い引数列等は手動で改行する運用を推奨。
+BasedOnStyle:  LLVM
+

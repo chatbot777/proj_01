@@ -1,14 +1,11 @@
 #include <cstdarg>
-#include <vector>
-#include <string>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/daily_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include "tool_logger.h"
 
-namespace app
-{
+namespace app {
 
 void LoggerInit(void)
 {
@@ -24,7 +21,8 @@ void LoggerInit(void)
     spdlog::set_level(spdlog::level::info); // ログレベル指定
     spdlog::set_pattern("%Y-%m-%d %H:%M:%S.%e, %-5l, %v");
 
-    // [thread %t]で[thread 32224]のようにスレッドIDが出る(とりあえずいらないので除外)
+    // [thread %t]で[thread
+    // 32224]のようにスレッドIDが出る(とりあえずいらないので除外)
     // spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%-5l] [thread %t] %v");
 }
 

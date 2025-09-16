@@ -1,8 +1,7 @@
 #ifndef TOOL_LOGGER_H
 #define TOOL_LOGGER_H
 
-namespace app
-{
+namespace app {
 
 #define LOG_DEBUG(fmtstr, ...) log_debug_impl(__FILE__, __LINE__, fmtstr, ##__VA_ARGS__)
 #define LOG_INFO(fmtstr, ...) log_info_impl(__FILE__, __LINE__, fmtstr, ##__VA_ARGS__)
