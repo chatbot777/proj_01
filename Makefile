@@ -30,7 +30,7 @@ endif
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall    -O3 -I./inc -MMD -MP # リリースビルド
 # CXXFLAGS = -std=c++17 -Wall -g -O0 -I./inc -MMD -MP # デバッグビルド
-LIBS = -lpthread -lboost_filesystem -lboost_system
+LIBS = -lpthread
 LDFLAGS = -L./lib
 
 #====================================================

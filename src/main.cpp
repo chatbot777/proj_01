@@ -6,8 +6,6 @@ int main()
     app::LoggerInit();
     app::LOG_INFO("main start");
 
-    while (true) { continue; }
-
     app::LOG_INFO("main end");
     return 0;
 }
