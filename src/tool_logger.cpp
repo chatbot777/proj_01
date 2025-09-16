@@ -10,7 +10,8 @@ namespace app {
 void LoggerInit(void)
 {
     // ファイル出力(毎日0時にローテート)
-    auto file_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("log/log.log", 0, 0);
+    auto file_sink =
+        std::make_shared<spdlog::sinks::daily_file_format_sink_mt>("log/log_%Y_%m_%d.log", 0, 0);
     // コンソール出力
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
