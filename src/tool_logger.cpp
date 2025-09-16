@@ -1,5 +1,7 @@
 #include <cstdarg>
+#include <cstdlib>
 #include <ctime>
+#include <filesystem>
 #include <iomanip>
 #include <mutex>
 #include <sstream>
@@ -17,6 +19,61 @@
 namespace app {
 
 namespace {
+
+std::string shell_escape(const std::string &input)
+{
+    std::string escaped;
+    escaped.reserve(input.size() + 2);
+    escaped.push_back('\'');
+    for (char c : input) {
+        if (c == '\'') {
+            escaped += "'\\''";
+        }
+        else {
+            escaped.push_back(c);
+        }
+    }
+    escaped.push_back('\'');
+    return escaped;
+}
+
+void compress_file(const spdlog::filename_t &filename)
+{
+    if (filename.empty()) {
+        return;
+    }
+
+    if (!spdlog::details::os::path_exists(filename)) {
+        return;
+    }
+
+    spdlog::filename_t archive_filename = filename;
+    archive_filename += SPDLOG_FILENAME_T(".tar.xz");
+    spdlog::details::os::remove_if_exists(archive_filename);
+
+    const auto file_path = std::filesystem::path(spdlog::details::os::filename_to_str(filename));
+    const auto archive_path = std::filesystem::path(spdlog::details::os::filename_to_str(archive_filename));
+    auto parent_path = file_path.parent_path();
+    if (parent_path.empty()) {
+        parent_path = std::filesystem::path(".");
+    }
+
+    const auto archive_str = archive_path.string();
+    const auto parent_str = parent_path.string();
+    const auto file_str = file_path.filename().string();
+
+    std::ostringstream command;
+    command << "tar -cJf " << shell_escape(archive_str) << " -C " << shell_escape(parent_str) << " "
+            << shell_escape(file_str);
+    const auto command_str = command.str();
+
+    const int result = std::system(command_str.c_str());
+    if (result != 0) {
+        throw spdlog::spdlog_ex("Failed to compress log file: " + archive_str);
+    }
+
+    spdlog::details::os::remove_if_exists(filename);
+}
 
 // 1日の間に生成されるログファイルをサイズ上限で区切りながら出力するカスタムシンク
 // (spdlogのファイルシンクを拡張して、日付ごと・ファイルサイズごとにローテーションする)
@@ -102,7 +159,7 @@ private:
 
         // 既存ファイルがあれば最後のものを再利用し、なければインデックス0から開始する
         file_index_ = found_existing ? last_existing_index : 0;
-        open_file(make_filename(current_tm_, file_index_));
+        open_file(make_filename(current_tm_, file_index_), has_current_file_);
 
         if (current_size_ >= max_size_bytes_) {
             // 既存ファイルがすでに上限を超えていれば即座に次のファイルにローテーション
@@ -115,7 +172,7 @@ private:
         while (true) {
             ++file_index_;
             const auto filename = make_filename(current_tm_, file_index_);
-            open_file(filename);
+            open_file(filename, true);
 
             if (current_size_ < max_size_bytes_) {
                 // 書き込み可能なファイルを見つけたらローテーション完了
@@ -124,18 +181,42 @@ private:
         }
     }
 
-    void open_file(const spdlog::filename_t &filename)
+    void open_file(const spdlog::filename_t &filename, bool finalize_previous)
     {
+        if (finalize_previous && has_current_file_) {
+            finalize_current_file();
+        }
+
         // 指定されたファイルを開き、現在のサイズを記録する
         file_helper_.open(filename, false);
+        current_filename_ = filename;
         current_size_ = file_helper_.size();
+        has_current_file_ = true;
+    }
+
+    void finalize_current_file()
+    {
+        if (!has_current_file_) {
+            return;
+        }
+
+        const auto previous_filename = current_filename_;
+        file_helper_.flush();
+        file_helper_.close();
+        has_current_file_ = false;
+        current_filename_.clear();
+        current_size_ = 0;
+
+        compress_file(previous_filename);
     }
 
     spdlog::details::file_helper file_helper_{};
+    spdlog::filename_t current_filename_{};
     std::tm current_tm_{};
     std::size_t file_index_{0};
     std::size_t current_size_{0};
     std::size_t max_size_bytes_;
+    bool has_current_file_{false};
 };
 
 constexpr std::size_t MAX_LOG_FILE_SIZE = 10 * 1024 * 1024;
