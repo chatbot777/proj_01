@@ -20,10 +20,11 @@ namespace {
 
 // 1日の間に生成されるログファイルをサイズ上限で区切りながら出力するカスタムシンク
 // (spdlogのファイルシンクを拡張して、日付ごと・ファイルサイズごとにローテーションする)
-class daily_size_file_sink_mt final : public spdlog::sinks::base_sink<std::mutex> {
+class daily_size_file_sink_mt final : public spdlog::sinks::base_sink<std::mutex>
+{
 public:
-    explicit daily_size_file_sink_mt(std::size_t max_size_bytes)
-        : max_size_bytes_(max_size_bytes) {
+    explicit daily_size_file_sink_mt(std::size_t max_size_bytes) : max_size_bytes_(max_size_bytes)
+    {
         if (max_size_bytes_ == 0) {
             throw spdlog::spdlog_ex("max_size_bytes must be greater than zero");
         }
@@ -33,7 +34,8 @@ public:
     }
 
 protected:
-    void sink_it_(const spdlog::details::log_msg &msg) override {
+    void sink_it_(const spdlog::details::log_msg &msg) override
+    {
         const auto message_tm = to_local_tm(msg.time);
         if (!is_same_day(message_tm, current_tm_)) {
             // ログの日付が切り替わった場合は新しい日付のファイルへ切り替える
@@ -45,14 +47,11 @@ protected:
 
         if (formatted.size() >= max_size_bytes_) {
             // 1メッセージでサイズ上限を超える場合は空き容量ができるまでファイルを進める
-            while (current_size_ != 0) {
-                rotate_file();
-            }
-        } else {
+            while (current_size_ != 0) { rotate_file(); }
+        }
+        else {
             // 既存ファイルに追記できない場合は十分な空きがあるファイルが見つかるまでローテーション
-            while (current_size_ + formatted.size() > max_size_bytes_) {
-                rotate_file();
-            }
+            while (current_size_ + formatted.size() > max_size_bytes_) { rotate_file(); }
         }
 
         // 実際にフォーマット済みメッセージを書き込み、サイズを更新する
@@ -63,24 +62,28 @@ protected:
     void flush_() override { file_helper_.flush(); }
 
 private:
-    static std::tm to_local_tm(spdlog::log_clock::time_point tp) {
+    static std::tm to_local_tm(spdlog::log_clock::time_point tp)
+    {
         const auto time = spdlog::log_clock::to_time_t(tp);
         return spdlog::details::os::localtime(time);
     }
 
-    static bool is_same_day(const std::tm &lhs, const std::tm &rhs) {
+    static bool is_same_day(const std::tm &lhs, const std::tm &rhs)
+    {
         return lhs.tm_year == rhs.tm_year && lhs.tm_yday == rhs.tm_yday;
     }
 
-    static spdlog::filename_t make_filename(const std::tm &tm, std::size_t index) {
+    static spdlog::filename_t make_filename(const std::tm &tm, std::size_t index)
+    {
         // ファイル名は「log_YYYY_MM_DD._XXlog」という形式で連番を持つ
         std::ostringstream stream;
-        stream << "log/log_" << std::put_time(&tm, "%Y_%m_%d") << "._" << std::setfill('0')
-               << std::setw(2) << index << "log";
+        stream << "log/log_" << std::put_time(&tm, "%Y_%m_%d") << "_" << std::setfill('0') << std::setw(2) << index
+               << "log";
         return stream.str();
     }
 
-    void open_latest_file_for_day(const std::tm &tm) {
+    void open_latest_file_for_day(const std::tm &tm)
+    {
         current_tm_ = tm;
 
         std::size_t candidate_index = 0;
@@ -107,7 +110,8 @@ private:
         }
     }
 
-    void rotate_file() {
+    void rotate_file()
+    {
         while (true) {
             ++file_index_;
             const auto filename = make_filename(current_tm_, file_index_);
@@ -120,7 +124,8 @@ private:
         }
     }
 
-    void open_file(const spdlog::filename_t &filename) {
+    void open_file(const spdlog::filename_t &filename)
+    {
         // 指定されたファイルを開き、現在のサイズを記録する
         file_helper_.open(filename, false);
         current_size_ = file_helper_.size();
@@ -133,14 +138,14 @@ private:
     std::size_t max_size_bytes_;
 };
 
-constexpr std::size_t kMaxLogFileSize = 10 * 1024 * 1024;
+constexpr std::size_t MAX_LOG_FILE_SIZE = 10 * 1024 * 1024;
 
 } // namespace
 
 void LoggerInit(void)
 {
     // ファイルへの出力（本クラス）とコンソール出力を組み合わせた複数シンクのロガーを構築
-    auto file_sink = std::make_shared<daily_size_file_sink_mt>(kMaxLogFileSize);
+    auto file_sink = std::make_shared<daily_size_file_sink_mt>(MAX_LOG_FILE_SIZE);
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
 
     std::vector<spdlog::sink_ptr> sinks{console_sink, file_sink};
