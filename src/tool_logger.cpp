@@ -135,7 +135,7 @@ private:
         // ファイル名は「log_YYYY_MM_DD._XXlog」という形式で連番を持つ
         std::ostringstream stream;
         stream << "log/log_" << std::put_time(&tm, "%Y_%m_%d") << "_" << std::setfill('0') << std::setw(2) << index
-               << "log";
+               << ".log";
         return stream.str();
     }
 
